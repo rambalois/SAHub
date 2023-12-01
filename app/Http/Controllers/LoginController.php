@@ -17,7 +17,6 @@ class LoginController extends Controller
     public function authenticate(Request $request){
         session()->start();
 
-        
         $credentials = $request->only('id_number', 'password');
 
         if (Auth::attempt($credentials)) {
@@ -36,9 +35,11 @@ class LoginController extends Controller
                 case 'student_assistant':
                     return redirect()->route('sa.dashboard');
                 case 'sa_manager':
-                    return redirect()->route('sa.manager.dashboard');
+                    return redirect()->route('sa.manager.dashboard.ongoing');
                 case 'office_admin':
-                    return redirect()->route('office.admin.dashboard');
+                    return redirect()->route('office.admin.active.dashboard');
+                case '':
+                    return redirect()->route('login');
 
             }        
         }
