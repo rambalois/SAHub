@@ -37,7 +37,7 @@ class LoginController extends Controller
                 case 'sa_manager':
                     return redirect()->route('sa.manager.dashboard.ongoing');
                 case 'office_admin':
-                    return redirect()->route('office.admin.active.dashboard');
+                    return redirect()->route('office.dashboard');
                 case '':
                     return redirect()->route('login');
 
