@@ -18,7 +18,7 @@
                                 <form class="text-center" method="POST" action="{{ route('authenticate') }}">
                                     @csrf
                                     <div class="mb-3">
-                                        <input class="form-control" type="text" name="id_number" placeholder="{{ __('ID Number') }}">
+                                        <input class="form-control" type="Email" name="Email" placeholder="{{ __('Email') }}">
                                         <span class="text-danger"> @error('id_number') {{$message}} @enderror</span>
                                     </div>
 
