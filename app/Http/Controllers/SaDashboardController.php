@@ -21,10 +21,7 @@ class SaDashboardController extends Controller
     public function index(){
         $user = $this->getuserID();
         $urgentTasks = DB::table('tasks')
-        //->join('user_tasks','user_tasks.task_id','tasks.id')
         ->where('assignment_type', 2)
-        //->where('user_tasks.task_status_id','=',1)
-        //->select('tasks.id')
         ->orderby('tasks.id', 'asc')->paginate(3);
 
         $assignedTasks = DB::table('user_tasks_timelog')
@@ -39,7 +36,7 @@ class SaDashboardController extends Controller
             'tasks.start_time',
             'tasks.end_time',
             'tasks.preffred_program',
-            'users.email' , 
+            'tasks.office_id' , 
             'tasks.to_be_done', 
             'tasks.assigned_office', 
             'tasks.note')
@@ -66,7 +63,7 @@ class SaDashboardController extends Controller
         $userTask = new SaTaskTimeLog();
         $userTask->user_id = $user->id;
         $userTask->task_id = $task->id;
-        $userTask->task_status = 1;
+        $userTask->task_status = true;
         $userTask->save();
 
         session()->flash('accept_task_success', 'Task accepted successfully!');
@@ -103,7 +100,7 @@ class SaDashboardController extends Controller
             'user_tasks_timelog.feedback', 
             'user_tasks_timelog.total_hours'
             )
-        ->orderby('user_tasks_timelog.id', 'asc')->paginate(5);
+        ->orderby('user_tasks_timelog.id', 'asc')->get();
 
         $rendered = DB::table('user_tasks_timelog')
         ->join('tasks', 'user_tasks_timelog.task_id', '=', 'tasks.id')
@@ -114,7 +111,7 @@ class SaDashboardController extends Controller
             DB::raw('SUM(user_tasks_timelog.total_hours) as total_hours'),)
         ->get();
         
-        
+        // dd($rendered);
 
         return view('sa.sa_profile', compact('user','userProfiles', 'taskHistory','rendered','schedule','term'));
     }
@@ -174,29 +171,30 @@ class SaDashboardController extends Controller
     }
 
     public function addTimeIn(Request $request)
-    {
+    {   
         $taskId = $request->input('task_id');
         $userId = $request->input('user_id');
         $timein = now();
 
         $timeLog = SaTaskTimeLog::where('task_id', $taskId)
                                 ->where('user_id', $userId)
-                                ->whereDate('time_in', $timein->toDateString())
+                                ->where('time_in', null)
                                 ->first();
 
-        if (!$timeLog) {
-            
-            $timeLog = new SaTaskTimeLog;
-            $timeLog->task_id = $taskId;
-            $timeLog->user_id = $userId;
-            $timeLog->time_in = $timein;
-            $timeLog->total_hours = 0;
-            $timeLog->is_Approved_In = 'Pending'; 
-            $timeLog->save();
+        if ($timeLog) {
+            $task = Task::where('id', $taskId)->first(); 
 
-            return redirect()->back()->with('success', 'Time-in logged successfully.');
+            if ($task && $timein >= $task->start_date && $timein > $task->start_time) {
+                $timeLog->time_in = $timein;
+                $timeLog->save();
+
+                return redirect()->back()->with('success', 'Time-in logged successfully.');
+            } else {
+                return redirect()->back()->with('error', 'Time-in is not allowed before the task start date or start time.');
+            }
         } else {
-            return redirect()->back()->with('warning', 'Time-in already exists for this task and date.');
+            //$timeLog->task_status=1;
+            return redirect()->back()->with('error', 'No matching time-in record found or time-in is less than 30 minutes ago.');
         }
     }
 
@@ -210,21 +208,31 @@ class SaDashboardController extends Controller
         ->where('user_id', $userId)
         ->whereDate('time_in', $timeout->toDateString())
         ->whereNull('time_out')
-        ->where('time_in', '<=', $timeout->subMinutes(30)) // Enforce 30-minute rule
+        //->where('time_in', '<=', $timeout->subMinutes(30)) // Enforce 30-minute rule
         ->first();
 
     if ($timeLog) {
-        $timeOutCarbon = Carbon::parse($timeout);
-        $timeInCarbon = Carbon::parse($timeLog->time_in);
+        $task = Task::where('id', $taskId)->first();
 
-        $totalHours = number_format($timeOutCarbon->diffInSeconds($timeInCarbon) / 3600, 2);
+        if ($task && $timeout >= $task->start_date && $timeout > $task->start_time) {
 
-        $timeLog->time_out = $timeout;
-        $timeLog->total_hours = $totalHours;
-        $timeLog->is_Approved_out = 'Pending';
-        $timeLog->save();
+            $timeOutCarbon = Carbon::parse($timeout);
+            $timeInCarbon = Carbon::parse($timeLog->time_in);
 
-        return redirect()->back()->with('success', 'Time-out logged successfully, awaiting approval.');
+            $totalHours = number_format($timeOutCarbon->diffInSeconds($timeInCarbon) / 3600, 2);
+
+            $timeLog->time_out = $timeout;
+            $timeLog->total_hours = $totalHours;
+            $timeLog->is_Approved_out = 'Pending';
+            $timeLog->save();
+
+            return redirect()->back()->with('success', 'Time-out logged successfully.');
+
+        } else {
+            return redirect()->back()->with('error', 'Time-out is not allowed before the task start date or start time.');
+        }
+
+        
     } else {
         return redirect()->back()->with('error', 'No matching time-in record found or time-in is less than 30 minutes ago.');
     }

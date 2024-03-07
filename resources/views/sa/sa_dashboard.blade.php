@@ -147,15 +147,15 @@
                                         <td>{{ $assignedtask->to_be_done }}</td>
                                         <td>
                                             <p style="margin: 0px;">{{ $assignedtask->assigned_office }}</p>
-                                            <p style="font-size: 12px;">{{ $assignedtask->email }}</p>
+                                            <p style="font-size: 12px;">{{ DB::table('users')->where('users.id', '=', $assignedtask->office_id)->select('users.email')->first()->email }}</p>
                                         </td>
                                         <td>{{ $assignedtask->note }}</td>
                                         <td style="font-weight: bold;">
                                             <form action="{{ route('sa.timein') }}" method="POST">
                                                 @csrf
-                                                <input type="hidden" name="task_id" value="{{ $assignedtask->id }}">
+                                                <input type="hidden" name="task_id" value="{{ $assignedtask->task_id }}">
                                                 <input type="hidden" name="user_id" value="{{ $user->id }}">
-                                                @if (!SaTaskTimeLog::where('task_id', $assignedtask->id)
+                                                @if (!SaTaskTimeLog::where('task_id', $assignedtask->task_id)
                                                     ->where('user_id', $user->id)
                                                     ->whereDate('time_in', now()->toDateString())
                                                     ->exists())

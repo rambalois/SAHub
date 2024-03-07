@@ -30,10 +30,11 @@
                         <th scope="col" style="background: #d9d9d9;">SA Name</th>
                         <th scope="col" style="background: #d9d9d9;">Course</th>
                         <th style="background: #d9d9d9;">Time In</th>
-                        <th style="background: #d9d9d9;">Time In Status</th>
+                        <!-- <th style="background: #d9d9d9;">Time In Status</th> -->
                         <th style="background: #d9d9d9;">Time Out</th>
-                        <th style="background: #d9d9d9;">Time Out Status</th>
+                        <!-- <th style="background: #d9d9d9;">Time Out Status</th> -->
                         <th style="background: #d9d9d9;">Hours</th>
+                        <th style="background: #d9d9d9;">Feedback</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,7 +50,7 @@
                                     {{$saList->timein}}
                                 @endif
                             </td>
-                            <td>
+                            <!--<td>
                                 <button class="btn 
                                     @if($saList->is_Approved_in === null)
                                         btn-danger disabled
@@ -77,7 +78,7 @@
                                         </form>
                                     </li>
                                 </ul>
-                            </td>
+                            </td>-->
                             <td>
                                 @if($saList->timeout == null)
                                     No Time-Out Yet
@@ -85,7 +86,7 @@
                                     {{$saList->timeout}}
                                 @endif
                             </td>
-                            <td>
+                            <!--<td>
                                 <button class="btn 
                                     @if($saList->is_Approved_out === null)
                                         btn-danger disabled
@@ -115,13 +116,20 @@
                                 </ul>
 
                                 
-                            </td>
+                            </td>-->
                             
                             <td>
                                 @if($saList->total_hours <= 0 )
                                     Not Yet Started
                                 @else
                                     {{$saList->total_hours}} Hr(s) 
+                                @endif
+                            </td>
+                            <td>
+                                @if($saList->feedback <= null )
+                                    Not Feedback
+                                @else
+                                    {{$saList->feedback}}
                                 @endif
                             </td>
                         </tr>

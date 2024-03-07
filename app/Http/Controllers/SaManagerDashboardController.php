@@ -85,7 +85,8 @@ class SaManagerDashboardController extends Controller
             DB::raw('DATE_FORMAT(user_tasks_timelog.time_out, "%H:%i") AS timeout'),
             'user_tasks_timelog.is_Approved_in',
             'user_tasks_timelog.is_Approved_out',
-            'user_tasks_timelog.total_hours' 
+            'user_tasks_timelog.total_hours' ,
+            'user_tasks_timelog.feedback' 
         )
         ->where('tasks.id','=', $taskId)
         ->get();

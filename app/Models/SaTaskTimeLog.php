@@ -10,6 +10,7 @@ class SaTaskTimeLog extends Model
     protected $table = 'user_tasks_timelog'; 
 
     protected $fillable = [
+        'task_status',
         'task_id',
         'user_id',
         'time_in',

@@ -196,7 +196,6 @@ class OfficeAdminDashboardController extends Controller
      */
     public function store(Request $request)
     {   
-        $now = Carbon::now();
         $user = $this->getuserID();
 
         $validator = Validator::make($request->all(), [
@@ -204,10 +203,10 @@ class OfficeAdminDashboardController extends Controller
             'start_time' => [
                 'required',
                 'date_format:H:i', 
-                function ($attribute, $value, $fail) use ($now) {
+                function ($attribute, $value, $fail) {
                     $startTime = Carbon::parse($value);
-                    if ($startTime->lt(Carbon::parse('08:00')) || $startTime->gt(Carbon::parse('22:00')) || $startTime->lt($now)) {
-                        $fail('Start time must be between 8 AM and 10 PM, and after the current time.');
+                    if ($startTime->lt(Carbon::parse('08:00')) || $startTime->gt(Carbon::parse('22:00'))) {
+                        $fail('Start time must be between 8 AM and 10 PM.');
                     }
                 },
             ],
@@ -266,7 +265,6 @@ class OfficeAdminDashboardController extends Controller
                                ->get();
         // Find SAs with available time slots
         $availableSAs = $this->findSAsWithAvailability($eligibleSAs, $task);
-
         // Assign the task 
         $this->assignTaskToSAs($task, $availableSAs); 
     }
@@ -297,28 +295,44 @@ class OfficeAdminDashboardController extends Controller
 
         foreach ($availableSAs as $sa) {
 
-            // Notify assigned SA (to be implemented i think)
-            //$this->notifySA($sa, $task); 
+            // Get the SA id based on the Sa id_number
+            $userId = DB::table('users')
+                ->where('id_number', $sa->user_id) 
+                ->value('id'); 
 
-            $this->acceptTaskAndLog($task, $sa); 
-
-            $saIndex++;
+            // Check if SA has already accepted this task 
+            if (SaTaskTimeLog::where('task_id', $task->id)
+                ->where('user_id', $userId) // Assuming you have the SA's ID
+                ->where('task_status', 1)  // Ensure accepted status
+                ->exists()) {
+                $saIndex++; 
+            } else {
+                $this->acceptTaskAndLog($task, $sa);
+                $saIndex++;
+                
+            }
+                
             if ($saIndex >= $numberOfSAsNeeded) {
                 break; 
             }
+
         }
     }
 
     private function acceptTaskAndLog(Task $task, SaProfile $sa)
-{
-    // Assuming 'user_id' represents the SA in your user_tasks_timelog table
-    $taskLog = new SaTaskTimeLog([
-        'task_id' => $task->id,
-        'user_id' => $sa->id,
-    ]);
-    $taskLog->task_status = 1;
-    $taskLog->save();
-}
+    {   
+        $userId = DB::table('users')
+                ->where('id_number', $sa->user_id) 
+                ->value('id'); 
+        
+
+        // Assuming 'user_id' represents the SA in your user_tasks_timelog table
+        $taskLog = new SaTaskTimeLog();
+        $taskLog->task_id = $task->id;
+        $taskLog->user_id = $userId;
+        $taskLog->task_status = 1;
+        $taskLog->save();
+    }
 
     private function handleVoluntary(Task $task)
     {
@@ -332,20 +346,9 @@ class OfficeAdminDashboardController extends Controller
     public function update(Request $request, string $id)
     {
         //
-
-
         $task = Task::findOrFail($id);
-
-        //dd($request->all());
-        $validatedData = $request->validate([
-            // ... your other validations
-            'start_time' => 'required', 
-            'end_time' => 'required',
-        ]);
     
         // Update the time portions
-        $task->start_time = $validatedData['start_time']; 
-        $task->end_time = $validatedData['end_time']; 
 
         //$task->update($request->all());
 
@@ -369,16 +372,12 @@ class OfficeAdminDashboardController extends Controller
         $task->assignment_type = $validatedData['assignment_type'];
         $task->to_be_done = $validatedData['to_be_done'];
         $task->note = $validatedData['note'];
-
-        /* Check for button action
-        if ($request->input('action') === 'save_draft') {
-            $task->isActive = 0; // Save as draft
-        } else {
-            $task->isActive = 1; // Repost task
-            //$task->;
-        }*/
-
         $task->save();
+
+        // Check for change to Auto Assignment
+        if ($task->assignment_type == 1) {
+            $this->handleAutoAssignment($task, $validatedData); // Trigger Auto-Assignment
+        }
         
         return redirect()->back()->with('success', 'Task edited successfully!');
     }
