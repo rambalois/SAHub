@@ -15,11 +15,12 @@
     <!--Bootstrap CSS CDN-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 </head>
-<body class="container">
+<body div class="login-wrapper" style="background-image: url('/images/ram.png'); background-position: center; background-size: cover;">
+<div class="container">
     <div id="app">
         @yield('content')
     </div>
-
+</div>
     <!-- JS Files -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script> 
     <script src="{{ asset('js/app.js') }}"></script> </body>
