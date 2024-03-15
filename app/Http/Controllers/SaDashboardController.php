@@ -200,6 +200,7 @@ class SaDashboardController extends Controller
 
     public function addTimeOut(Request $request)
 {
+    
     $taskId = $request->input('task_id');
     $userId = $request->input('user_id');
     $timeout = now();
@@ -210,7 +211,7 @@ class SaDashboardController extends Controller
         ->whereNull('time_out')
         //->where('time_in', '<=', $timeout->subMinutes(30)) // Enforce 30-minute rule
         ->first();
-
+    
     if ($timeLog) {
         $task = Task::where('id', $taskId)->first();
 

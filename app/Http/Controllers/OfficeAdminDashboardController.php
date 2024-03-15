@@ -126,7 +126,9 @@ class OfficeAdminDashboardController extends Controller
         $feedback = $request->input('feedback');
 
         // Retrieve the specific time log using first()
-        $timeLog = SaTaskTimeLog::where('id', $timeLogId)->first();
+        $timeLog = SaTaskTimeLog::where('id', $timeLogId)
+            ->whereNotNull('time_out')
+            ->first();
 
         if ($timeLog) {
             $timeLog->feedback = $feedback;
@@ -135,7 +137,7 @@ class OfficeAdminDashboardController extends Controller
             return redirect()->back()->with('success', 'Feedback saved successfully!');
         } else {
             // Handle the error case where a time log is not found
-            return redirect()->back()->with('error', 'Time log not found.');
+            return redirect()->back()->with('error', 'Cannot provide feedback before the time out is recorded.');
         }
     }
 
@@ -272,19 +274,50 @@ class OfficeAdminDashboardController extends Controller
     private function findSAsWithAvailability($eligibleSAs, Task $task) 
     {
         return $eligibleSAs->filter(function($sa) use ($task) {
-            // Check if the SA has any schedule conflicts
-            return !DB::table('student_schedules')
-                ->join('subject_offerings', 'subject_offerings.id', '=', 'student_schedules.subject_offering_id')
-                ->join('subject_offering_details', 'subject_offering_details.subject_offering_id', '=', 'subject_offerings.id')
-                ->where(function ($query) use ($task) {
-                    $query->where(function($query) use ($task) { // Check for starts within task time
-                            $query->whereRaw('SUBSTRING_INDEX(subject_offering_details.time_constraints, "-", 1) BETWEEN ? AND ?', [$task->start_time, $task->end_time]);
-                        })
-                        ->orWhere(function($query) use ($task) { // Check for ends within task time
-                            $query->whereRaw('SUBSTRING_INDEX(subject_offering_details.time_constraints, "-", -1) BETWEEN ? AND ?', [$task->start_time, $task->end_time]);
-                        });
+            // Schedule Conflict Check (Existing Code) 
+            $hasScheduleConflict = DB::table('student_schedules')
+            ->join('subject_offerings', 'subject_offerings.id', '=', 'student_schedules.subject_offering_id')
+            ->join('subject_offering_details', 'subject_offering_details.subject_offering_id', '=', 'subject_offerings.id')
+            ->where('student_schedules.user_id', $sa->id) // Replace with how you get the SA's ID
+            ->where(function ($query) use ($task) {
+                $query->where(function($query) use ($task) { 
+                        // Task starts within existing schedule
+                        $query->whereRaw('SUBSTRING_INDEX(subject_offering_details.time_constraints, "-", 1) BETWEEN ? AND ?', [$task->start_time, $task->end_time]);
+                    })
+                    ->orWhere(function($query) use ($task) { 
+                        // Task ends within existing schedule
+                        $query->whereRaw('SUBSTRING_INDEX(subject_offering_details.time_constraints, "-", -1) BETWEEN ? AND ?', [$task->start_time, $task->end_time]);
+                    })
+                    ->orWhere(function($query) use ($task) { 
+                        // Task surrounds an existing schedule
+                        $query->whereRaw('SUBSTRING_INDEX(subject_offering_details.time_constraints, "-", 1) < ?', [$task->start_time]) 
+                            ->whereRaw('SUBSTRING_INDEX(subject_offering_details.time_constraints, "-", -1) > ?', [$task->end_time]);
+                    });
                 })
                 ->exists();
+
+            // Accepted Task Conflict Check
+            $hasTaskConflict = DB::table('user_tasks_timelog')
+                ->join('tasks', 'user_tasks_timelog.task_id', '=', 'tasks.id') // Join with the 'tasks' table
+                ->where('user_tasks_timelog.user_id', $sa->id)  
+                ->where(function ($query) use ($task) {
+                    $query->where(function($query) use ($task) { 
+                            // Task starts within existing accepted task
+                            $query->whereRaw('tasks.start_time BETWEEN ? AND ?', [$task->start_time, $task->end_time]); 
+                        })
+                        ->orWhere(function($query) use ($task) { 
+                            // Task ends within existing accepted task
+                            $query->whereRaw('tasks.end_time BETWEEN ? AND ?', [$task->start_time, $task->end_time]);
+                        })
+                        ->orWhere(function($query) use ($task) { 
+                            // Task surrounds an existing accpeted task
+                            $query->whereRaw('tasks.start_time < ?', [$task->start_time]) 
+                                ->whereRaw('tasks.end_time > ?', [$task->end_time]);
+                        });
+                    })
+                    ->exists();
+
+            return !($hasScheduleConflict || $hasTaskConflict);
         }); 
     }
 
@@ -324,7 +357,6 @@ class OfficeAdminDashboardController extends Controller
         $userId = DB::table('users')
                 ->where('id_number', $sa->user_id) 
                 ->value('id'); 
-        
 
         // Assuming 'user_id' represents the SA in your user_tasks_timelog table
         $taskLog = new SaTaskTimeLog();

@@ -69,8 +69,8 @@
                                     @endif
                                 </td>
                                 <td style="font-weight: bold;">
-                                    <button class="btn {{ $saList->feedback ? 'btn-info' : 'btn-warning '}}" type="button" style="font-size: 18px;color: rgb(0,0,0);font-weight: bold;border-style: none;" data-bs-toggle="modal" data-bs-target="#feedbackModal-{{ $saList->timelogId }}">
-                                        {{ $saList->feedback ? 'View' : 'Add'}}
+                                    <button class="btn {{ $saList->timeout ? 'btn-info' : 'btn-warning '}}" type="button" style="font-size: 12px;color: rgb(0,0,0);font-weight: bold;border-style: none;" data-bs-toggle="modal" data-bs-target="#feedbackModal-{{ $saList->timelogId }}" {{ $saList->timeout ? ' ' : 'disabled' }} > 
+                                        {{ $saList->timeout ? 'Add/Edit Feedback' : 'Finish Task First'}}
                                     </button>
                                     @include('modals.feedback')
                                 </td>

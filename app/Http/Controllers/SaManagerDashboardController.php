@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Query\Builder;
 use App\Models\SaTaskTimeLog;
 use App\Models\Task;
 use App\Models\User;
@@ -24,21 +25,22 @@ class SaManagerDashboardController extends Controller
         ->join('users', 'user_tasks_timelog.user_id', '=', 'users.id')
         ->where('tasks.isActive', 1)
         ->select(
-            'tasks.id', 
+            'user_tasks_timelog.task_id', 
             'tasks.start_date', 
             'tasks.start_time', 
             'tasks.end_time', 
             'tasks.preffred_program', 
-            'users.email', 
             'tasks.to_be_done', 
             'tasks.assigned_office', 
-            DB::raw('SUM(user_tasks_timelog.total_hours) as total_hours'), 
+            'tasks.number_of_sa',
+            DB::raw('SUM(user_tasks_timelog.total_hours) as accumulated_hours'), 
             'tasks.note',
             DB::raw("TIMESTAMPDIFF(HOUR, CONCAT(tasks.start_date, ' ', tasks.start_time), CONCAT(tasks.start_date, ' ', tasks.end_time)) as task_hours")
             ) 
-        ->groupBy('tasks.id', 'tasks.start_date', 'tasks.start_time', 'tasks.end_time', 'tasks.preffred_program', 'users.email', 'tasks.to_be_done', 'tasks.assigned_office', 'tasks.note') // Group by all non-aggregated columns
-        ->orderBy('tasks.id', 'asc')
-        ->paginate(5);  
+        ->groupBy('user_tasks_timelog.task_id', 'tasks.start_date', 'tasks.start_time', 'tasks.end_time', 'tasks.number_of_sa', 'tasks.preffred_program', 'tasks.to_be_done', 'tasks.assigned_office', 'tasks.note') // Group by all non-aggregated columns
+        ->orderBy('user_tasks_timelog.task_id', 'asc')
+        ->get();  
+        
         return view('sam.sam_dashboard_ongoing', compact('assignedTasks','user'));
     }
 
@@ -47,22 +49,26 @@ class SaManagerDashboardController extends Controller
         $assignedTasks = DB::table('user_tasks_timelog')
         ->join('tasks', 'user_tasks_timelog.task_id', '=', 'tasks.id')
         ->join('users', 'user_tasks_timelog.user_id', '=', 'users.id')
-        ->where('tasks.isActive', 0)
+        ->where('tasks.isActive', 1)
         ->select(
-            'tasks.id',
+            'user_tasks_timelog.task_id',
             'tasks.start_date',
             'tasks.start_time',
             'tasks.end_time',
             'tasks.preffred_program',
-            'users.email',
             'tasks.to_be_done',
             'tasks.assigned_office',
-            DB::raw('SUM(user_tasks_timelog.total_hours) as total_hours'), 
+            'tasks.number_of_sa',
+            DB::raw('SUM(user_tasks_timelog.total_hours) as accumulated_hours'), 
             'tasks.note',
             DB::raw("TIMESTAMPDIFF(HOUR, CONCAT(tasks.start_date, ' ', tasks.start_time), CONCAT(tasks.start_date, ' ', tasks.end_time)) as task_hours")
             )
-        ->groupBy('tasks.id', 'tasks.start_date', 'tasks.start_time', 'tasks.end_time', 'tasks.preffred_program', 'users.email', 'tasks.to_be_done', 'tasks.assigned_office', 'tasks.note') // Group by all non-aggregated columns
-        ->orderBy('tasks.id', 'asc');
+        ->groupBy('user_tasks_timelog.task_id', 'tasks.start_date', 'tasks.start_time', 'tasks.end_time', 'tasks.number_of_sa', 'tasks.preffred_program', 'tasks.to_be_done', 'tasks.assigned_office', 'tasks.note') // Group by all non-aggregated columns
+        ->orderBy('user_tasks_timelog.task_id', 'asc')
+        ->get();
+
+        
+
         return view('sam.sam_dashboard_done', compact('assignedTasks','user'));
     }
 
@@ -155,11 +161,11 @@ class SaManagerDashboardController extends Controller
         return view('sam.sam_salist_task_done', compact('saLists','user','taskId'));
     }
 
-    public function addHours(Request $request)
+    public function editHours(Request $request)
     {
         // Validate the incoming request data
         $request->validate([
-            'add_hours' => 'required|numeric|min:0',
+            'add_hours' => 'required|numeric',
         ]);
 
         // Get the existing total_hours value from the timelog or set a default of 0
@@ -168,6 +174,9 @@ class SaManagerDashboardController extends Controller
         if ($timeLog) {
             $existingTotalHours = $timeLog->total_hours;
         }
+
+        // Determine operation based on the sign of add_hours
+        $operation = ($request->add_hours >= 0) ? 'add' : 'subtract';
 
         // Calculate the new total_hours
         $newTotalHours = $existingTotalHours + $request->add_hours;
@@ -178,7 +187,7 @@ class SaManagerDashboardController extends Controller
         $timeLog->save();
 
         // Redirect to a success page or display a success message
-        return redirect()->back()->with('success', $request->add_hours.' Hour/s added successfully!');
+        return redirect()->back()->with('success', abs($request->add_hours) . ' Hour/s ' . (($operation == 'add') ?  'added' : 'subtracted') . ' successfully!');
     }
 
     public function getuserID()

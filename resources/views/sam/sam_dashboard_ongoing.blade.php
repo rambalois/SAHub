@@ -45,42 +45,52 @@
                             </tr>
                         </thead>
                         <tbody>
-                                @if(empty($assignedTasks))
-                                    <tr>
-                                        <td data-label="No Task Available" scope="row" colpan="8"><strong> No Task Available </strong></td>
-                                    </tr>
-                                @else
+                                        @php 
+                                            $taskFound = false; 
+                                        @endphp 
                                     @foreach ($assignedTasks as $task)
-                                        <tr>
-                                            <td data-label="Attributes" scope="row">{{ $task->id }}</td>
-                                            <td data-label="Base Class">
-                                                <p style="margin: 0px;">{{ $task->start_date }}</p>
-                                                <p style="font-size: 12px;">{{ $task->start_time }} - {{ $task->end_time }}</p>
-                                            </td>
-                                            <td data-label="Simulated Case">{{ $task->preffred_program }}</td>
-                                            <td>{{$task->to_be_done}}</td>
-                                            <td>
-                                                <p style="margin: 0px;">{{ $task->assigned_office }}</p>
-                                                <p style="font-size: 12px;">{{ $task->email }}</p>
-                                            </td>
-
-                                            <td>{{ $task->note }}</td>
-                                            <td>
-                                                <p style="margin: 0px;">{{ $task->task_hours }}</p>  
-                                            </td>
-
-
+                                        @if($task->accumulated_hours < ($task->number_of_sa * 90)) 
+                                        @php 
+                                                $taskFound = true; 
+                                            @endphp             
+                                            <tr>
+                                                <td data-label="Attributes" scope="row">{{ $task->task_id }}</td>
+                                                <td data-label="Base Class">
+                                                    <p style="margin: 0px;">{{ $task->start_date }}</p>
+                                                    <p style="font-size: 12px;">{{ $task->start_time }} - {{ $task->end_time }}</p>
+                                                </td>
+                                                <td data-label="Simulated Case">{{ $task->preffred_program }}</td>
+                                                <td>{{$task->to_be_done}}</td>
                                                 <td>
-                                                    <a href="{{ route('sa.manager.saList', $task->id) }}" class="btn btn-warning fw-bold" > 
-                                                        View # SA
-                                                    </a>
+                                                    <p style="margin: 0px;">{{ $task->assigned_office }}</p>
+                                                    <p style="font-size: 12px;">
+                                                        {{ DB::table('users')->where('users.faculty', '=', $task->assigned_office)->select('users.email')->first()->email }}
+                                                    </p>
+                                                
                                                 </td>
 
-                                            
-                                        </tr>
+                                                <td>{{ $task->note }}</td>
+                                                <td>
+                                                    <p style="margin: 0px;">{{$task->accumulated_hours}} / {{ $task->number_of_sa * 90}}</p>  
+                                                </td>
+
+
+                                                    <td>
+                                                        <a href="{{ route('sa.manager.saList', $task->task_id) }}" class="btn btn-warning fw-bold" > 
+                                                            View # SA
+                                                        </a>
+                                                    </td>
+                                            </tr>
                                         
+                                        @endif
+
+                                        @if(!$taskFound && $loop->last)  
+                                            <tr>
+                                                <td data-label="No Task Available" scope="row" colspan="8"><strong> No Task Available </strong></td>
+                                            </tr>
+                                        @endif 
                                     @endforeach
-                                @endif
+                                
                         </tbody>
                     </table>
                 </div>

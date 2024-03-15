@@ -72,7 +72,7 @@
                     @endif
                 @endforeach
                 
-                /90 Hours Rendered</h6>
+                / 90 Hour(s) Rendered</h6>
                 <div class="table-responsive" style="padding: 1em;">
                     <table class="table table-hover">
                         <thead>

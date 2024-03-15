@@ -49,7 +49,7 @@ Route::get('/sa_manager/{taskId}/sa_list', [SAManagerDashboardController::class,
 Route::get('/sa_manager/{taskId}/sa_timein_approve', [SAManagerDashboardController::class,'acceptTimeIn'])->name('sa.manager.saListTimeInApprove');
 Route::get('/sa_manager/{taskId}/sa_timeout_approve', [SAManagerDashboardController::class,'acceptTimeOut'])->name('sa.manager.saListTimeOutApprove');
 Route::get('/sa_manager/{taskId}/sa_list_done', [SAManagerDashboardController::class,'viewSaListDone'])->name('sa.manager.saListDone');
-Route::put('/sa_manager/add_hours', [SAManagerDashboardController::class, 'addHours'])->name('sa.manager.addHours');
+Route::put('/sa_manager/add_hours', [SAManagerDashboardController::class, 'editHours'])->name('sa.manager.addHours');
 
 //Office Admin Routes
 //Route::get('/office_admin/dashboard', [OfficeAdminDashboardController::class, 'index'])->name('office.admin.dashboard');

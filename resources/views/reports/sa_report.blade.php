@@ -93,14 +93,14 @@
                                         <td data-label="{{$task->total_hours}}" class="
                                             @if ($task->total_hours == 0)
                                                 table-danger 
-                                            @elseif ($task->total_hours == 90) 
+                                            @elseif ($task->total_hours >= 90) 
                                                 table-success
                                             @elseif ($task->total_hours > 0) 
                                                 table-primary
                                             @endif    
                                             ">  <strong>{{$task->total_hours}}  
                                             
-                                                @if ($task->total_hours == 90) 
+                                                @if ($task->total_hours >= 90) 
                                                     (Completed)
                                                 @endif 
                                                 </strong>

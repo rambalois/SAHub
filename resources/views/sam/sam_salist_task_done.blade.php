@@ -30,7 +30,9 @@
                         <th scope="col" style="background: #d9d9d9;">Course</th>
                         <th style="background: #d9d9d9;">Time In</th>
                         <th style="background: #d9d9d9;">Time Out</th>
-                        <th style="background: #d9d9d9;">Hours</th>
+                        <th style="background: #d9d9d9;">Rendered Hours</th>
+                        <th style="background: #d9d9d9;">Feedback   </th>
+                        <th style="background: #d9d9d9;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,10 +63,13 @@
                                     {{$saList->total_hours}} Hr(s) 
                                 @endif
                             </td>
+                            <td>
+                                {{ $saList->feedback ? $saList->feedback : 'No Feedback'}}
+                            </td>
 
                             <td>
-                                <button class="btn btn-info" type="button" style="font-size: 18px;color: rgb(0,0,0);font-weight: bold;border-style: none;" data-bs-toggle="modal" data-bs-target="#editHoursModal-{{ $saList->timelogId }}">
-                                    Edit Hour/s
+                                <button class="btn btn-info" type="button" style="font-size: 13px;color: rgb(0,0,0);font-weight: bold;border-style: none;" data-bs-toggle="modal" data-bs-target="#editHoursModal-{{ $saList->timelogId }}" {{$saList->timeout ? '' : 'disabled'}}>
+                                {{$saList->timeout ? 'Edit Hour/s' : 'No Time-out'}}
                                 </button>
                                 @include('modals.edit_hours')
                             </td>

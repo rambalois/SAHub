@@ -70,7 +70,7 @@
                                         @endphp
                                         <tr>
                                             <td data-label="Attributes" scope="row">{{ $task->id }}</td>
-                                            <td data-label="Base Class">{{ $task->created_at }}</td>
+                                            <td data-label="Base Class">{{ $task->start_date }}</td>
                                             <td data-label="Simulated Case">{{ $task->preffred_program }}</td>
                                             <td>{{ $task->assigned_office}}</td>
                                             <td>{{ $task->note }}</td>
@@ -168,9 +168,9 @@
                                         <td style="font-weight: bold;">
                                             <form action="{{ route('sa.timeout') }}" method="POST">
                                                 @csrf
-                                                <input type="hidden" name="task_id" value="{{ $assignedtask->id }}">
+                                                <input type="hidden" name="task_id" value="{{ $assignedtask->task_id }}">
                                                 <input type="hidden" name="user_id" value="{{ $user->id }}">
-                                                @if (!SaTaskTimeLog::where('task_id', $assignedtask->id)
+                                                @if (!SaTaskTimeLog::where('task_id', $assignedtask->task_id)
                                                     ->where('user_id', $user->id)
                                                     ->whereDate('time_out', now()->toDateString())
                                                     ->exists())

@@ -33,8 +33,9 @@
                         <!-- <th style="background: #d9d9d9;">Time In Status</th> -->
                         <th style="background: #d9d9d9;">Time Out</th>
                         <!-- <th style="background: #d9d9d9;">Time Out Status</th> -->
-                        <th style="background: #d9d9d9;">Hours</th>
+                        <th style="background: #d9d9d9;">Rendered Hours</th>
                         <th style="background: #d9d9d9;">Feedback</th>
+                        <th style="background: #d9d9d9;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,11 +45,7 @@
                             <td data-label="Base Class">{{$saList->first_name}} {{$saList->last_name}}</td>
                             <td data-label="Simulated Case">{{$saList->course_program}}</td>
                             <td>
-                                @if($saList->timein == null)
-                                    No Time-In Yet
-                                @else
-                                    {{$saList->timein}}
-                                @endif
+                                {{$saList->timein == null ? 'No Time-In Yet' : $saList->timein}}
                             </td>
                             <!--<td>
                                 <button class="btn 
@@ -80,11 +77,7 @@
                                 </ul>
                             </td>-->
                             <td>
-                                @if($saList->timeout == null)
-                                    No Time-Out Yet
-                                @else
-                                    {{$saList->timeout}}
-                                @endif
+                                {{$saList->timeout == null ? 'No Time-Out Yet' : $saList->timeout}}
                             </td>
                             <!--<td>
                                 <button class="btn 
@@ -119,18 +112,16 @@
                             </td>-->
                             
                             <td>
-                                @if($saList->total_hours <= 0 )
-                                    Not Yet Started
-                                @else
-                                    {{$saList->total_hours}} Hr(s) 
-                                @endif
+                                {{ $saList->total_hours <= 0 ? 'Not Yet Started' : $saList->total_hours.' Hr(s)'}}
                             </td>
                             <td>
-                                @if($saList->feedback <= null )
-                                    Not Feedback
-                                @else
-                                    {{$saList->feedback}}
-                                @endif
+                                {{ $saList->feedback ? $saList->feedback : 'No Feedback'}}
+                            </td>
+                            <td>
+                                <button class="btn btn-info" type="button" style="font-size: 13px;color: rgb(0,0,0);font-weight: bold;border-style: none;" data-bs-toggle="modal" data-bs-target="#editHoursModal-{{ $saList->timelogId }}" {{$saList->timeout ? '' : 'disabled'}}>
+                                {{$saList->timeout ? 'Edit Hour/s' : 'No Time-out'}}
+                                </button>
+                                @include('modals.edit_hours')
                             </td>
                         </tr>
                     @endforeach

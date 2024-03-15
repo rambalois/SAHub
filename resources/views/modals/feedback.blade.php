@@ -42,7 +42,7 @@
                                 <div class="text-start" style="padding: 3em;width: 100%;height: 100%;">
                                     <div style="padding: 0% 2%;">
                                         <h5 class="text-start d-xl-flex">Feedback</h5>
-                                        <textarea style="width: 100%;" name="feedback" placeholder="{{$saList->feedback}}"></textarea>
+                                        <textarea style="width: 100%;" name="feedback" placeholder="{{$saList->feedback ? $saList->feedback : 'Add Feedback'}}"></textarea>
                                         <input type="hidden" name="timelogId" value="{{ $saList->timelogId }}">
                                     </div>
                                 </div>
