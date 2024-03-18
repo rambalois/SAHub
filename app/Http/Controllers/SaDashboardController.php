@@ -57,9 +57,22 @@ class SaDashboardController extends Controller
         return $user;
     }
 
-    public  function acceptTask($id){
+    public  function acceptTask(Task $task){
         $user = $this->getuserID();
-        $task = Task::find($id);
+        
+        $hasConflict = SaTaskTimeLog::where('user_id', $user->id)
+            ->join('tasks', 'user_tasks_timelog.task_id', '=', 'tasks.id') 
+            ->where(function ($query) use ($task) {
+                $query->where('tasks.start_time', '<', $task->end_time)
+                    ->where('tasks.end_time', '>', $task->start_time);
+            })
+            ->exists();
+
+        if ($hasConflict) {
+            session()->flash('error', 'Cannot accept task due to time conflict with existing tasks.');
+            return redirect()->route('sa.dashboard');
+        }
+
         $userTask = new SaTaskTimeLog();
         $userTask->user_id = $user->id;
         $userTask->task_id = $task->id;

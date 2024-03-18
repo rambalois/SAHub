@@ -40,7 +40,7 @@
                                 <th style="background: #FFBD59;">Task</th>
                                 <th style="background: #FFBD59;">Office</th>
                                 <th style="background: #FFBD59;">Note</th>
-                                <th style="background: #FFBD59;">Hours</th>
+                        
                                 <th style="background: #FFBD59;">SA</th>
                             </tr>
                         </thead>
@@ -70,9 +70,7 @@
                                                 </td>
 
                                                 <td>{{ $task->note }}</td>
-                                                <td>
-                                                    <p style="margin: 0px;">{{$task->accumulated_hours}} / {{ $task->number_of_sa * 90}}</p>  
-                                                </td>
+                                             
 
 
                                                     <td>
