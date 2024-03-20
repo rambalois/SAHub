@@ -9,7 +9,7 @@
             
         <div >
                     <div >
-                        <h2>Add Task</h2>
+                        <h2><b>Add Task</b></h2>
                     </div>
                     <form action="{{ route('office.add') }}" method="POST" id="addTaskForm">
                         @csrf
@@ -32,7 +32,7 @@
                                         <div class="row">
                                             <div class="col" style="margin: 1em;">
                                                 <div><label class="form-label"><strong>Date *</strong></label></div>
-                                                <div><input id="start_date" name="start_date" type="date" style="width: 200px;font-size: 20px;">
+                                                <div><input id="start_date" name="start_date" type="date" style="width: 200px;font-size: 18px;">
                                                 </div>
                                             </div>
                                             <div class="col" style="margin: 1em;">

@@ -27,9 +27,9 @@
                     </div>
             </div>
         </div>
-        <div style="padding: 3em;border-top-style: groove;">
+        <div style="padding: 3em;">
             <section>
-                <h1>Assigned Tasks</h1>
+                <h1 style="text-align: center;"><b>On-going Tasks</b></h1>
                 <div class="table-responsive" style="padding: 1em;">
                     <table class="table table-hover text-center">
                         <thead>

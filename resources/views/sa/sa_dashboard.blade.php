@@ -11,7 +11,7 @@
         @endphp
         <div style="padding: 3em;">
             <section>
-                <h1>Voluntary Tasks</h1>
+                <h1 style="text-align: center;"><b> Voluntary Tasks</b></h1>
                     @if (session('accept_task_success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {{ session('accept_task_success') }}
@@ -107,7 +107,8 @@
 
         <div style="padding: 3em;border-top-style: groove;">
             <section>
-                <h1>Tasks</h1>
+                <h1 style="text-align: center;"><b>Criteria-Based Tasks</b></h1>
+                <h5 style="text-align: center;">Tasks based on your vacant schedule and program</h5>
                 <div class="table-responsive" style="padding: 1em;">
                     <table class="table table-hover text-center">
                         <thead>

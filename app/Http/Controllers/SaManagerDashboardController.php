@@ -23,7 +23,6 @@ class SaManagerDashboardController extends Controller
         $assignedTasks = DB::table('user_tasks_timelog')
         ->join('tasks', 'user_tasks_timelog.task_id', '=', 'tasks.id')
         ->join('users', 'user_tasks_timelog.user_id', '=', 'users.id')
-        ->where('tasks.isActive', 1)
         ->select(
             'user_tasks_timelog.task_id', 
             'tasks.start_date', 
@@ -49,7 +48,6 @@ class SaManagerDashboardController extends Controller
         $assignedTasks = DB::table('user_tasks_timelog')
         ->join('tasks', 'user_tasks_timelog.task_id', '=', 'tasks.id')
         ->join('users', 'user_tasks_timelog.user_id', '=', 'users.id')
-        ->where('tasks.isActive', 1)
         ->select(
             'user_tasks_timelog.task_id',
             'tasks.start_date',
@@ -66,8 +64,6 @@ class SaManagerDashboardController extends Controller
         ->groupBy('user_tasks_timelog.task_id', 'tasks.start_date', 'tasks.start_time', 'tasks.end_time', 'tasks.number_of_sa', 'tasks.preffred_program', 'tasks.to_be_done', 'tasks.assigned_office', 'tasks.note') // Group by all non-aggregated columns
         ->orderBy('user_tasks_timelog.task_id', 'asc')
         ->get();
-
-        
 
         return view('sam.sam_dashboard_done', compact('assignedTasks','user'));
     }

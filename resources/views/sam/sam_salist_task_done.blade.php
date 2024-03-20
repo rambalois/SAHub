@@ -15,7 +15,7 @@
             </div>
         @endif
     <div class="d-xl-flex justify-content-xl-center align-items-xl-center" style="width: 100%;height: 4em;">
-        <h3>List of Student Assistant</h3>
+        <h3>List of Student Assistant/s</h3>
     </div>
     <section>
         <div class="d-xl-flex justify-content-xl-center align-items-xl-center" style="width: 100%;height: 3em;padding: 8px;background: #d9d9d9;margin: 0px;">

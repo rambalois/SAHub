@@ -278,7 +278,7 @@ class OfficeAdminDashboardController extends Controller
             $hasScheduleConflict = DB::table('student_schedules')
             ->join('subject_offerings', 'subject_offerings.id', '=', 'student_schedules.subject_offering_id')
             ->join('subject_offering_details', 'subject_offering_details.subject_offering_id', '=', 'subject_offerings.id')
-            ->where('student_schedules.user_id', $sa->id) // Replace with how you get the SA's ID
+            ->where('student_schedules.student_id', $sa->id) // Replace with how you get the SA's ID
             ->where(function ($query) use ($task) {
                 $query->where(function($query) use ($task) { 
                         // Task starts within existing schedule

@@ -1,6 +1,6 @@
 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas-1">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title">{{$user->username}} - (SA)</h5><button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <h5 class="offcanvas-title">{{$user->username}} - SA</h5><button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
                 <div style="margin: 5px;padding: 5px;">

@@ -194,6 +194,11 @@ class SaDashboardController extends Controller
                                 ->where('time_in', null)
                                 ->first();
 
+        $newTimeLog = SaTaskTimeLog::where('task_id', $taskId)
+                            ->where('user_id', $userId)
+                            ->where('time_in','!=', null)
+                            ->first();
+
         if ($timeLog) {
             $task = Task::where('id', $taskId)->first(); 
 
@@ -202,9 +207,19 @@ class SaDashboardController extends Controller
                 $timeLog->save();
 
                 return redirect()->back()->with('success', 'Time-in logged successfully.');
-            } else {
+            }             
+            else {
                 return redirect()->back()->with('error', 'Time-in is not allowed before the task start date or start time.');
             }
+        }elseif($newTimeLog){
+            $timeLog = new SaTaskTimeLog();
+                $timeLog->task_id = $taskId;
+                $timeLog->user_id = $userId;
+                $timeLog->time_in = $timein;
+                $timeLog->task_status = true;
+                $timeLog->save();
+
+                return redirect()->back()->with('success','New Time-in logged successfully.');
         } else {
             //$timeLog->task_status=1;
             return redirect()->back()->with('error', 'No matching time-in record found or time-in is less than 30 minutes ago.');
@@ -237,7 +252,7 @@ class SaDashboardController extends Controller
 
             $timeLog->time_out = $timeout;
             $timeLog->total_hours = $totalHours;
-            $timeLog->is_Approved_out = 'Pending';
+            // $timeLog->is_Approved_out = 'Pending';
             $timeLog->save();
 
             return redirect()->back()->with('success', 'Time-out logged successfully.');
